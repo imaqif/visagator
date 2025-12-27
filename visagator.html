@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visagator — UAE Tourist Visa Quote Request</title>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <style>
+    /* ============================================================
+       VISAGATOR — Single File MVP (Easy Use)
+       - Put logo file in same folder: visagator-logo.png
+       ============================================================ */
+
+    :root{
+      --brand:#0A3D62;    /* primary navy/teal */
+      --gold:#F39C12;     /* accent gold */
+
+      --bg:#07101a;
+      --cardA:rgba(255,255,255,.06);
+      --cardB:rgba(255,255,255,.04);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --muted2:rgba(255,255,255,.55);
+      --stroke:rgba(255,255,255,.14);
+      --shadow:0 18px 60px rgba(0,0,0,.35);
+      --radius:18px;
+
+      --ok:#3ddc97;
+      --danger:#ff6b6b;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1100px 700px at 12% 12%, rgba(10,61,98,.45), transparent 62%),
+        radial-gradient(980px 650px at 88% 14%, rgba(243,156,18,.20), transparent 62%),
+        radial-gradient(900px 700px at 40% 110%, rgba(61,220,151,.10), transparent 65%),
+        var(--bg);
+      padding:24px 14px;
+      min-height:100vh;
+    }
+
+    .wrap{max-width:980px;margin:0 auto}
+
+    /* -------- HERO -------- */
+    .hero{
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg,var(--cardA),var(--cardB));
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      margin-bottom:14px;
+    }
+    .heroTop{
+      padding:16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .brandLockup{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:260px;
+    }
+    .brandLogo{
+      width:190px;
+      height:auto;
+      display:block;
+      filter: drop-shadow(0 10px 30px rgba(0,0,0,.25));
+    }
+    .heroBadge{
+      border:1px solid rgba(243,156,18,.35);
+      background:rgba(243,156,18,.10);
+      padding:10px 12px;
+      border-radius:999px;
+      font-size:12px;
+      color:rgba(255,255,255,.84);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .heroBody{
+      padding:0 16px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .heroText{max-width:90ch}
+    .heroText h1{
+      margin:4px 0 6px;
+      font-size:clamp(20px,2.3vw,30px);
+      letter-spacing:.2px;
+    }
+    .heroText p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+    .heroCTA{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill{
+      font-size:12px;color:rgba(255,255,255,.78);
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      padding:8px 10px;border-radius:999px;
+      display:inline-flex;gap:8px;align-items:center;
+    }
+    .pill .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--gold);
+      box-shadow:0 0 0 3px rgba(243,156,18,.18);
+    }
+
+    /* -------- GENERIC CARD -------- */
+    .card{
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg,var(--cardA),var(--cardB));
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .cardTop{
+      padding:14px 16px;
+      border-bottom:1px solid var(--stroke);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .cardBody{padding:16px}
+
+    /* -------- BUTTONS -------- */
+    .btn{
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:850;
+      font-size:13px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      transition:transform .06s ease, background .18s ease, border-color .18s ease, opacity .18s ease;
+      user-select:none;
+    }
+    .btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.08)}
+    .btn.primary{border-color:rgba(10,61,98,.85);background:rgba(10,61,98,.28)}
+    .btn.gold{border-color:rgba(243,156,18,.55);background:rgba(243,156,18,.14)}
+    .btn.danger{border-color:rgba(255,107,107,.55);background:rgba(255,107,107,.12)}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+    /* -------- WIZARD PROGRESS -------- */
+    .progress{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .stepDot{
+      width:32px;height:32px;border-radius:999px;
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.18);
+      color:rgba(255,255,255,.82);
+      font-size:12px;font-weight:900;
+    }
+    .stepDot.active{
+      border-color:rgba(10,61,98,.85);
+      background:rgba(10,61,98,.26);
+      box-shadow:0 0 0 3px rgba(10,61,98,.14);
+    }
+    .stepDot.done{border-color:rgba(61,220,151,.55);background:rgba(61,220,151,.14)}
+    .stepLabel{font-size:12px;color:var(--muted2);min-width:160px}
+
+    /* -------- FORMS -------- */
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input,select,textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
+    }
+    textarea{min-height:110px;resize:vertical}
+
+    .help{margin-top:6px;font-size:12px;color:var(--muted2);line-height:1.4}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:780px){.grid{grid-template-columns:1fr}}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .divider{height:1px;background:rgba(255,255,255,.12);margin:14px 0}
+
+    .errorBox{
+      margin-top:10px;
+      border:1px solid rgba(255,107,107,.35);
+      background:rgba(255,107,107,.10);
+      border-radius:14px;
+      padding:10px 12px;
+      display:none;
+      font-size:13px;
+      line-height:1.4;
+    }
+    .errorBox.show{display:block}
+
+    .travCard{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px;
+      margin-top:10px;
+    }
+    .travCard h3{margin:0 0 10px;font-size:13px}
+    .miniRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:10px}
+
+    /* -------- CONFIRMATION -------- */
+    .confirmBox{
+      border:1px solid rgba(61,220,151,.32);
+      background:rgba(61,220,151,.10);
+      border-radius:18px;
+      padding:14px 14px;
+    }
+    .bigId{
+      font-size:18px;
+      font-weight:950;
+      letter-spacing:.5px;
+      margin:8px 0 6px;
+      color:rgba(255,255,255,.95);
+    }
+    .privacyBox{
+      margin-top:10px;
+      border:1px solid rgba(243,156,18,.38);
+      background:rgba(243,156,18,.10);
+      border-radius:14px;
+      padding:10px 12px;
+      color:rgba(255,255,255,.92);
+      line-height:1.45;
+      font-size:13px;
+    }
+
+    /* -------- SOCIAL PROOF DASHBOARD -------- */
+    .sp-section{ margin: 14px 0 0; }
+    .sp-card{
+      border:1px solid rgba(255,255,255,.14);
+      background:linear-gradient(180deg,var(--cardA),var(--cardB));
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .sp-top{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.14);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .sp-title{margin:0;font-size:18px;font-weight:950;letter-spacing:.2px}
+    .sp-sub{margin:6px 0 0;color:rgba(255,255,255,.70);font-size:13px;line-height:1.45;max-width:90ch}
+    .sp-pill{
+      border:1px solid rgba(243,156,18,.35);
+      background:rgba(243,156,18,.10);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .sp-body{padding:14px 16px 16px}
+    .sp-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width:1100px){ .sp-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
+    @media (max-width:820px){ .sp-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media (max-width:460px){ .sp-grid{grid-template-columns:1fr;} }
+
+    .sp-metric{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+      transition: transform .10s ease, background .20s ease, border-color .20s ease;
+    }
+    .sp-metric:hover{
+      transform: translateY(-2px);
+      background: rgba(0,0,0,.20);
+      border-color: rgba(243,156,18,.22);
+    }
+    .sp-metric::after{
+      content:"";
+      position:absolute;
+      inset:-40px -60px auto auto;
+      width:120px;height:120px;
+      background:radial-gradient(circle at 30% 30%, rgba(243,156,18,.22), transparent 60%);
+      transform:rotate(18deg);
+      pointer-events:none;
+    }
+    .sp-highlight{
+      border:1px solid rgba(243,156,18,.40);
+      background:rgba(243,156,18,.10);
+    }
+    .sp-row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+    .sp-icon{
+      width:36px;height:36px;border-radius:12px;
+      display:grid;place-items:center;
+      background:rgba(10,61,98,.22);
+      border:1px solid rgba(10,61,98,.55);
+      color:var(--gold);
+      flex:0 0 auto;
+    }
+    .sp-label{
+      margin:8px 0 6px;
+      color:rgba(255,255,255,.72);
+      font-size:12px;
+      line-height:1.25;
+      min-height:32px;
+    }
+    .sp-value{
+      font-weight:950;
+      font-size:22px;
+      letter-spacing:.3px;
+      color:rgba(255,255,255,.92);
+    }
+    .sp-note{margin-top:8px;color:rgba(255,255,255,.55);font-size:12px;line-height:1.35}
+    .sp-foot{
+      margin-top:12px;
+      color:rgba(255,255,255,.55);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .sp-foot code{
+      background:rgba(0,0,0,.18);
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.12);
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="heroTop">
+      <div class="brandLockup">
+        <!-- EASY LOGO USE:
+             Put your logo in same folder and name it "visagator-logo.png" -->
+        <img class="brandLogo" src="visagator-logo.png" alt="Visagator Logo">
+      </div>
+      <div class="heroBadge">
+        <i class="fa-solid fa-shield-halved" style="color:var(--gold)"></i>
+        MVP • Quote Request Only
+      </div>
+    </div>
+
+    <div class="heroBody">
+      <div class="heroText">
+        <h1>UAE Tourist Visa Quotes — Fast & Simple</h1>
+        <p>
+          Submit one request and receive visa quotes from registered agencies.
+          <b>Passport uploads and full documentation are handled later via WhatsApp/email.</b>
+        </p>
+      </div>
+      <div class="heroCTA">
+        <div class="pill"><span class="dot"></span> Privacy-first workflow</div>
+        <button class="btn gold" type="button" onclick="document.getElementById('appCard').scrollIntoView({behavior:'smooth'})">
+          <i class="fa-solid fa-bolt"></i> Start Quote Request
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WIZARD (ABOVE COUNTERS) ===================== -->
+  <div class="card" id="appCard">
+    <div class="cardTop">
+      <div class="progress">
+        <div class="stepDot" id="dot1">1</div>
+        <div class="stepDot" id="dot2">2</div>
+        <div class="stepDot" id="dot3">3</div>
+        <div class="stepDot" id="dot4">4</div>
+        <div class="stepDot" id="dot5">✓</div>
+        <div class="stepLabel" id="stepLabel">Step 1 of 4 — Contact</div>
+      </div>
+      <div class="pill">Travelers: <b id="travCount">1</b></div>
+    </div>
+
+    <div class="cardBody">
+
+      <!-- STEP 1: Contact -->
+      <section id="step1">
+        <div class="grid">
+          <div>
+            <label for="fullName">Full name *</label>
+            <input id="fullName" type="text" placeholder="e.g., John Smith" />
+          </div>
+          <div>
+            <label for="email">Email address *</label>
+            <input id="email" type="email" placeholder="e.g., john@email.com" />
+          </div>
+          <div>
+            <label for="phone">Contact number *</label>
+            <input id="phone" type="tel" placeholder="e.g., +97150XXXXXXX" />
+            <div class="help">Include country code. Example: +971XXXXXXXXX</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <span class="help">All fields marked * are required.</span>
+          <button class="btn primary" id="next1" type="button">
+            Next <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div class="errorBox" id="err1"></div>
+      </section>
+
+      <!-- STEP 2: Visa Details -->
+      <section id="step2" style="display:none;">
+        <p class="help">Add traveler details. Use “Add another traveler” for multiple applicants.</p>
+        <div id="travelerList"></div>
+
+        <div class="miniRow">
+          <button class="btn" id="addTraveler" type="button">
+            <i class="fa-solid fa-user-plus"></i> Add another traveler
+          </button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <button class="btn" id="back2" type="button">
+            <i class="fa-solid fa-arrow-left"></i> Back
+          </button>
+          <button class="btn primary" id="next2" type="button">
+            Next <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div class="errorBox" id="err2"></div>
+      </section>
+
+      <!-- STEP 3: Travel Info -->
+      <section id="step3" style="display:none;">
+        <p class="help">Enter travel timing. (Dates are per traveler.)</p>
+        <div id="travelList"></div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <button class="btn" id="back3" type="button">
+            <i class="fa-solid fa-arrow-left"></i> Back
+          </button>
+          <button class="btn primary" id="next3" type="button">
+            Next <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div class="errorBox" id="err3"></div>
+      </section>
+
+      <!-- STEP 4: Additional -->
+      <section id="step4" style="display:none;">
+        <div class="grid">
+          <div>
+            <label for="comments">Comments (optional)</label>
+            <textarea id="comments" placeholder="Any extra notes? (e.g., preferred processing time)"></textarea>
+          </div>
+
+          <div>
+            <label>Audio message (optional)</label>
+            <div class="pill" style="margin-bottom:10px;">
+              <span class="dot"></span> Your browser may ask for microphone permission.
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn" id="btnRec" type="button"><i class="fa-solid fa-microphone"></i> Record</button>
+              <button class="btn" id="btnStop" type="button" disabled><i class="fa-solid fa-stop"></i> Stop</button>
+              <button class="btn" id="btnPlay" type="button" disabled><i class="fa-solid fa-play"></i> Play</button>
+              <button class="btn danger" id="btnClearAudio" type="button" disabled><i class="fa-solid fa-trash"></i> Clear</button>
+            </div>
+
+            <audio id="audioPlayer" controls style="width:100%;margin-top:10px;display:none;"></audio>
+
+            <div class="help">
+              MVP: audio is stored only in-memory for this session. We store only a flag (<b>audioAttached</b>) in localStorage.
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <button class="btn" id="back4" type="button"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="btn gold" id="submitBtn" type="button"><i class="fa-solid fa-paper-plane"></i> Submit Request</button>
+        </div>
+
+        <div class="errorBox" id="err4"></div>
+      </section>
+
+      <!-- STEP 5: Confirmation -->
+      <section id="step5" style="display:none;">
+        <div class="confirmBox">
+          <div style="font-weight:950;">Quote request received!</div>
+
+          <div class="bigId" id="confirmReqId">VIS-YYYYMMDD-0001</div>
+
+          <div class="help" style="margin:0;">
+            Registered travel agencies will contact you directly with visa quotes.
+          </div>
+
+          <!-- REQUIRED privacy message -->
+          <div class="privacyBox">
+            <b>Thank you for submitting your request.</b>
+            Please note that your name and contact details will not be shared with vendors until you finalize a quote.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row" style="justify-content:flex-start;">
+            <button class="btn" id="btnDownloadPdf" type="button"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+            <button class="btn primary" id="btnNewRequest" type="button"><i class="fa-solid fa-rotate-right"></i> New Request</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===================== COUNTERS (BELOW WIZARD) ===================== -->
+  <section class="sp-section" id="socialProof">
+    <div class="sp-card">
+      <div class="sp-top">
+        <div>
+          <h2 class="sp-title">Trusted by Travelers Worldwide</h2>
+          <p class="sp-sub">
+            Live platform stats (MVP). These counters use <code>localStorage</code> today and can be replaced later with analytics + database.
+          </p>
+        </div>
+        <div class="sp-pill">
+          <i class="fa-solid fa-signal" style="color:var(--gold)"></i>
+          Live counters
+        </div>
+      </div>
+
+      <div class="sp-body">
+        <div class="sp-grid">
+
+          <div class="sp-metric">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-paper-plane"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value" data-count id="spRequests" data-target="0">0</div>
+                <div class="sp-note">Total quote requests</div>
+              </div>
+            </div>
+            <div class="sp-label">Total Quote Requests Submitted</div>
+          </div>
+
+          <div class="sp-metric sp-highlight">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-circle-check"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value" data-count id="spPurchases" data-target="0">0</div>
+                <div class="sp-note">Completed visas</div>
+              </div>
+            </div>
+            <div class="sp-label">Successful Visa Purchases</div>
+          </div>
+
+          <div class="sp-metric">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-chart-line"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value" id="spConversionLine">—</div>
+                <div class="sp-note">Conversion rate</div>
+              </div>
+            </div>
+            <div class="sp-label">Out of X requests, Y purchased</div>
+          </div>
+
+          <div class="sp-metric">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-eye"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value" data-count id="spVisits" data-target="0">0</div>
+                <div class="sp-note">Since launch</div>
+              </div>
+            </div>
+            <div class="sp-label">Total Page Visits</div>
+          </div>
+
+          <div class="sp-metric">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-calendar-days"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value" data-count id="spDaysLive" data-target="0">0</div>
+                <div class="sp-note">Days live</div>
+              </div>
+            </div>
+            <div class="sp-label">Days Live</div>
+          </div>
+
+          <div class="sp-metric">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-flag"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value" id="spTopNationality">—</div>
+                <div class="sp-note">Most common</div>
+              </div>
+            </div>
+            <div class="sp-label">Top Nationality</div>
+          </div>
+
+          <div class="sp-metric">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-stopwatch"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value" id="spAvgProcessing">—</div>
+                <div class="sp-note">Avg processing</div>
+              </div>
+            </div>
+            <div class="sp-label">Average Processing Time</div>
+          </div>
+
+          <div class="sp-metric">
+            <div class="sp-row">
+              <div class="sp-icon"><i class="fa-solid fa-shield-halved"></i></div>
+              <div style="text-align:right">
+                <div class="sp-value">Privacy</div>
+                <div class="sp-note">Built-in</div>
+              </div>
+            </div>
+            <div class="sp-label">Contact details protected until you finalize a quote</div>
+          </div>
+
+        </div>
+
+        <div class="sp-foot" id="spFootLine"></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="help" style="margin-top:12px;">
+    <b>How to test:</b> Save as <code>visagator.html</code> and open in Chrome/Edge.<br/>
+    <b>Mic note:</b> some browsers block microphone on <code>file://</code>. Use localhost/HTTPS for best results.
+  </p>
+
+</div>
+
+<script>
+/* ============================================================================
+   VISAGATOR — Single File MVP Logic
+============================================================================ */
+
+/* --------------------------
+   Storage Keys (admin-ready)
+--------------------------- */
+const REQUESTS_KEY   = "visagator_requests_v1";
+const COUNTER_PREFIX = "visagator_counter_";    // per day
+const STATS_KEY      = "visagator_stats_v1";
+
+/* EDIT: Launch date for "Days Live" */
+const LAUNCH_DATE = "2025-12-01";
+
+/* Helpers */
+const $ = (s)=>document.querySelector(s);
+
+/* Wizard DOM */
+const stepLabel = $("#stepLabel");
+const dots = [$("#dot1"),$("#dot2"),$("#dot3"),$("#dot4"),$("#dot5")];
+const step1 = $("#step1"), step2 = $("#step2"), step3 = $("#step3"), step4 = $("#step4"), step5 = $("#step5");
+
+const err1 = $("#err1"), err2 = $("#err2"), err3 = $("#err3"), err4 = $("#err4");
+
+const fullName = $("#fullName");
+const email = $("#email");
+const phone = $("#phone");
+
+const travelerList = $("#travelerList");
+const travelList = $("#travelList");
+const travCount = $("#travCount");
+
+const comments = $("#comments");
+const confirmReqId = $("#confirmReqId");
+
+const btnDownloadPdf = $("#btnDownloadPdf");
+const btnNewRequest = $("#btnNewRequest");
+
+/* Audio DOM */
+const btnRec = $("#btnRec");
+const btnStop = $("#btnStop");
+const btnPlay = $("#btnPlay");
+const btnClearAudio = $("#btnClearAudio");
+const audioPlayer = $("#audioPlayer");
+
+/* Buttons */
+$("#next1").addEventListener("click", goNextFrom1);
+$("#back2").addEventListener("click", ()=>showStep(1));
+$("#next2").addEventListener("click", goNextFrom2);
+$("#back3").addEventListener("click", ()=>showStep(2));
+$("#next3").addEventListener("click", goNextFrom3);
+$("#back4").addEventListener("click", ()=>showStep(3));
+$("#submitBtn").addEventListener("click", submitRequest);
+$("#addTraveler").addEventListener("click", addTraveler);
+
+/* State */
+let currentStep = 1;
+let travelers = [];
+let lastSubmittedRecord = null;
+
+/* Audio state (MVP: in-memory only) */
+let mediaRecorder = null;
+let audioChunks = [];
+let audioBlob = null;
+
+/* Init */
+init();
+function init(){
+  travelers = [];
+  addTraveler();
+  setupAudio();
+  showStep(1);
+  initSocialProofDashboard();
+}
+
+/* --------------------------
+   Wizard UI
+--------------------------- */
+function showStep(n){
+  currentStep = n;
+  step1.style.display = (n===1) ? "" : "none";
+  step2.style.display = (n===2) ? "" : "none";
+  step3.style.display = (n===3) ? "" : "none";
+  step4.style.display = (n===4) ? "" : "none";
+  step5.style.display = (n===5) ? "" : "none";
+
+  for(let i=0;i<5;i++){
+    dots[i].classList.remove("active","done");
+    if(i < n-1) dots[i].classList.add("done");
+    if(i === n-1) dots[i].classList.add("active");
+  }
+
+  const map = {
+    1:"Step 1 of 4 — Contact",
+    2:"Step 2 of 4 — Visa Details",
+    3:"Step 3 of 4 — Travel Info",
+    4:"Step 4 of 4 — Additional",
+    5:"Done"
+  };
+  stepLabel.textContent = map[n] || "";
+}
+
+/* Validation */
+function setErr(box,msg){
+  if(!msg){ box.classList.remove("show"); box.textContent=""; return; }
+  box.classList.add("show"); box.textContent = msg;
+}
+function required(v){ return String(v||"").trim().length>0; }
+function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||"").trim()); }
+function isValidPhone(v){
+  const s = String(v||"").trim();
+  return /^\+?[0-9\s-]{7,18}$/.test(s) && s.replace(/[^0-9]/g,"").length >= 7;
+}
+
+/* Next / Back */
+function goNextFrom1(){
+  setErr(err1,"");
+  if(!required(fullName.value)) return setErr(err1,"Please enter your full name.");
+  if(!isValidEmail(email.value)) return setErr(err1,"Please enter a valid email address.");
+  if(!isValidPhone(phone.value)) return setErr(err1,"Please enter a valid contact number.");
+  showStep(2);
+}
+function goNextFrom2(){
+  setErr(err2,"");
+  for(let i=0;i<travelers.length;i++){
+    const t = travelers[i];
+    if(!required(t.visaType)) return setErr(err2,`Traveler ${i+1}: please select visa type.`);
+    if(!required(t.gender))   return setErr(err2,`Traveler ${i+1}: please select gender.`);
+    if(!required(t.dob))      return setErr(err2,`Traveler ${i+1}: please select date of birth.`);
+    if(!required(t.nationality)) return setErr(err2,`Traveler ${i+1}: please select nationality.`);
+    if(t.nationality === "United Arab Emirates") return setErr(err2,`Traveler ${i+1}: UAE nationality is not allowed.`);
+  }
+  showStep(3);
+}
+function goNextFrom3(){
+  setErr(err3,"");
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  for(let i=0;i<travelers.length;i++){
+    const t = travelers[i];
+
+    if(!t.neverVisitedUAE && t.lastUaeTravel){
+      const d = new Date(t.lastUaeTravel + "T00:00:00");
+      if(!(d < today)) return setErr(err3,`Traveler ${i+1}: "Last travel to UAE" must be in the past or select "Never visited".`);
+    }
+
+    if(!required(t.expectedUaeTravel)) return setErr(err3,`Traveler ${i+1}: please select expected travel date to UAE.`);
+    const e = new Date(t.expectedUaeTravel + "T00:00:00");
+    if(!(e > today)) return setErr(err3,`Traveler ${i+1}: "Expected travel to UAE" must be a future date.`);
+  }
+  showStep(4);
+}
+
+/* --------------------------
+   Travelers UI
+--------------------------- */
+function updateTravelerCount(){ travCount.textContent = String(travelers.length); }
+
+function addTraveler(){
+  travelers.push({
+    visaType:"", gender:"", dob:"", nationality:"",
+    neverVisitedUAE:false, lastUaeTravel:"", expectedUaeTravel:""
+  });
+  renderTravelerCards();
+  renderTravelCards();
+  updateTravelerCount();
+}
+
+function removeTraveler(index){
+  travelers.splice(index,1);
+  renderTravelerCards();
+  renderTravelCards();
+  updateTravelerCount();
+}
+
+function renderTravelerCards(){
+  travelerList.innerHTML = travelers.map((t, idx) => `
+    <div class="travCard">
+      <div class="row">
+        <h3>Traveler ${idx+1}</h3>
+        <div>
+          ${travelers.length>1 ? `<button class="btn danger" type="button" data-remove="${idx}"><i class="fa-solid fa-xmark"></i> Remove</button>`:""}
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Visa type *</label>
+          <select data-field="visaType" data-idx="${idx}">
+            <option value="">Select</option>
+            <option ${t.visaType==="30 days single entry"?"selected":""}>30 days single entry</option>
+            <option ${t.visaType==="60 days single entry"?"selected":""}>60 days single entry</option>
+            <option ${t.visaType==="60 days multiple entry"?"selected":""}>60 days multiple entry</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Gender *</label>
+          <select data-field="gender" data-idx="${idx}">
+            <option value="">Select</option>
+            <option ${t.gender==="Male"?"selected":""}>Male</option>
+            <option ${t.gender==="Female"?"selected":""}>Female</option>
+            <option ${t.gender==="Other"?"selected":""}>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Date of birth *</label>
+          <input type="date" data-field="dob" data-idx="${idx}" value="${escapeAttr(t.dob)}" />
+        </div>
+
+        <div>
+          <label>Nationality *</label>
+          <select data-field="nationality" data-idx="${idx}">
+            <option value="">Select</option>
+            ${nationalityOptions(t.nationality)}
+          </select>
+          <div class="help">UAE is intentionally excluded.</div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  travelerList.querySelectorAll("[data-field]").forEach(el=>{
+    el.addEventListener("change",(e)=>{
+      const i = Number(e.target.getAttribute("data-idx"));
+      const f = e.target.getAttribute("data-field");
+      travelers[i][f] = e.target.value;
+    });
+  });
+
+  travelerList.querySelectorAll("[data-remove]").forEach(btn=>{
+    btn.addEventListener("click",()=>removeTraveler(Number(btn.getAttribute("data-remove"))));
+  });
+}
+
+function renderTravelCards(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today.getTime()-86400000);
+  const tomorrow = new Date(today.getTime()+86400000);
+
+  const yesterdayISO = toISODate(yesterday);
+  const tomorrowISO = toISODate(tomorrow);
+
+  travelList.innerHTML = travelers.map((t, idx) => `
+    <div class="travCard">
+      <h3>Traveler ${idx+1}</h3>
+
+      <div class="grid">
+        <div>
+          <label>Last travel to UAE</label>
+          <div class="pill" style="margin-bottom:10px;">
+            <input type="checkbox" data-idx="${idx}" data-field="neverVisitedUAE"
+              ${t.neverVisitedUAE?"checked":""}
+              style="width:auto;margin:0 8px 0 0;" />
+            Never visited
+          </div>
+          <input type="date"
+            data-idx="${idx}" data-field="lastUaeTravel"
+            value="${escapeAttr(t.lastUaeTravel)}"
+            max="${yesterdayISO}"
+            ${t.neverVisitedUAE ? "disabled":""}/>
+          <div class="help">Disabled for current/future dates.</div>
+        </div>
+
+        <div>
+          <label>Expected travel to UAE *</label>
+          <input type="date"
+            data-idx="${idx}" data-field="expectedUaeTravel"
+            value="${escapeAttr(t.expectedUaeTravel)}"
+            min="${tomorrowISO}"/>
+          <div class="help">Disabled for past/current dates.</div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  travelList.querySelectorAll("[data-field]").forEach(el=>{
+    el.addEventListener("change",(e)=>{
+      const i = Number(e.target.getAttribute("data-idx"));
+      const f = e.target.getAttribute("data-field");
+      const val = (e.target.type==="checkbox") ? e.target.checked : e.target.value;
+
+      travelers[i][f] = val;
+      if(f==="neverVisitedUAE"){
+        if(val===true) travelers[i].lastUaeTravel = "";
+        renderTravelCards();
+      }
+    });
+  });
+}
+
+function toISODate(d){
+  const yyyy=d.getFullYear();
+  const mm=String(d.getMonth()+1).padStart(2,"0");
+  const dd=String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function escapeAttr(v){ return String(v||"").replaceAll('"',"&quot;"); }
+
+function nationalityOptions(selected){
+  const list = [
+    "India","Pakistan","Bangladesh","Sri Lanka","Nepal","Philippines","Indonesia","Malaysia","Singapore",
+    "United Kingdom","United States","Canada","Australia","New Zealand",
+    "France","Germany","Italy","Spain","Netherlands","Sweden","Norway","Denmark","Switzerland",
+    "South Africa","Nigeria","Kenya","Egypt","Morocco","Tunisia",
+    "Turkey","Jordan","Lebanon","Saudi Arabia","Kuwait","Qatar","Bahrain","Oman",
+    "China","Japan","South Korea","Vietnam","Thailand"
+  ];
+  return list.map(n=>`<option ${n===selected?"selected":""}>${n}</option>`).join("");
+}
+
+/* --------------------------
+   Audio (MediaRecorder)
+--------------------------- */
+function setupAudio(){
+  btnRec.addEventListener("click", startRecording);
+  btnStop.addEventListener("click", stopRecording);
+  btnPlay.addEventListener("click", ()=>audioPlayer.src && audioPlayer.play());
+  btnClearAudio.addEventListener("click", clearAudio);
+}
+
+async function startRecording(){
+  setErr(err4,"");
+  audioChunks=[]; audioBlob=null;
+
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = (e)=>{ if(e.data && e.data.size>0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = ()=>{
+      audioBlob = new Blob(audioChunks,{ type:"audio/webm" });
+      const url = URL.createObjectURL(audioBlob);
+      audioPlayer.src = url;
+      audioPlayer.style.display="";
+      btnPlay.disabled=false;
+      btnClearAudio.disabled=false;
+      stream.getTracks().forEach(t=>t.stop());
+    };
+
+    mediaRecorder.start();
+    btnRec.disabled=true;
+    btnStop.disabled=false;
+  }catch(e){
+    console.error(e);
+    setErr(err4,"Microphone permission denied or not available.");
+  }
+}
+
+function stopRecording(){
+  if(!mediaRecorder) return;
+  mediaRecorder.stop();
+  btnStop.disabled=true;
+  btnRec.disabled=false;
+}
+
+function clearAudio(){
+  if(audioPlayer.src){
+    try{ URL.revokeObjectURL(audioPlayer.src); }catch{}
+  }
+  audioPlayer.src="";
+  audioPlayer.style.display="none";
+  audioBlob=null;
+  audioChunks=[];
+  btnPlay.disabled=true;
+  btnClearAudio.disabled=true;
+}
+
+/* --------------------------
+   Storage helpers
+--------------------------- */
+function loadRequests(){
+  try{ return JSON.parse(localStorage.getItem(REQUESTS_KEY) || "[]"); }
+  catch{ return []; }
+}
+function saveRequests(arr){
+  localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
+}
+
+/* Unique Request ID: VIS-YYYYMMDD-XXXX */
+function nextRequestId(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,"0");
+  const d = String(now.getDate()).padStart(2,"0");
+  const ymd = `${y}${m}${d}`;
+
+  const counterKey = COUNTER_PREFIX + ymd;
+  const current = Number(localStorage.getItem(counterKey) || "0");
+  const next = current + 1;
+  localStorage.setItem(counterKey, String(next));
+
+  return `VIS-${ymd}-${String(next).padStart(4,"0")}`;
+}
+
+/* --------------------------
+   Submit Request
+--------------------------- */
+function submitRequest(){
+  setErr(err4,"");
+
+  if(!required(fullName.value) || !isValidEmail(email.value) || !isValidPhone(phone.value)){
+    setErr(err4,"Contact info seems invalid. Please go back and check Step 1.");
+    return;
+  }
+
+  // Basic sanity check
+  for(const t of travelers){
+    if(!required(t.visaType) || !required(t.gender) || !required(t.dob) || !required(t.nationality)){
+      setErr(err4,"Some traveler fields are missing. Please go back and complete Step 2/3.");
+      return;
+    }
+  }
+
+  const requestId = nextRequestId();
+  const submittedAtISO = new Date().toISOString();
+
+  const record = {
+    requestId,
+    submittedAtISO,
+    contact:{
+      fullName:String(fullName.value).trim(),
+      email:String(email.value).trim(),
+      phone:String(phone.value).trim(),
+    },
+    travelers: travelers.map(t=>({
+      visaType:t.visaType,
+      gender:t.gender,
+      dob:t.dob,
+      nationality:t.nationality,
+      neverVisitedUAE:Boolean(t.neverVisitedUAE),
+      lastUaeTravel:t.lastUaeTravel || "",
+      expectedUaeTravel:t.expectedUaeTravel || ""
+    })),
+    additional:{
+      comments:String(comments.value||"").trim(),
+      audioAttached:Boolean(audioBlob)
+    },
+
+    /* Admin workflow fields */
+    status:"New",
+    adminNotes:"",
+    revealContact:false,
+    finalizedAtISO:""
+  };
+
+  const all = loadRequests();
+  all.push(record);
+  saveRequests(all);
+
+  lastSubmittedRecord = record;
+  confirmReqId.textContent = record.requestId;
+
+  showStep(5);
+  initSocialProofDashboard(); // refresh counters after submit
+}
+
+/* --------------------------
+   PDF
+--------------------------- */
+btnDownloadPdf.addEventListener("click", async ()=>{
+  if(!lastSubmittedRecord) return;
+
+  try{
+    const url = await generatePdfBlobUrl(lastSubmittedRecord);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${lastSubmittedRecord.requestId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  }catch(e){
+    console.error(e);
+    alert("PDF generation failed. Please try again.");
+  }
+});
+
+async function generatePdfBlobUrl(record){
+  if(!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF not loaded");
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF({ unit:"pt", format:"a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 44;
+  let y = 52;
+
+  doc.setFont("helvetica","bold"); doc.setFontSize(16);
+  doc.text("UAE Tourist Visa Quote Request (Visagator)", margin, y); y += 18;
+
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(90);
+  doc.text(`Request ID: ${record.requestId}`, margin, y); y += 12;
+  doc.text(`Submitted: ${new Date(record.submittedAtISO).toLocaleString()}`, margin, y); y += 14;
+
+  doc.setTextColor(70);
+  const privacy = "Privacy note: Name and contact details will not be shared with vendors until the requester finalizes a quote.";
+  const pLines = doc.splitTextToSize(privacy, pageW - margin*2);
+  doc.text(pLines, margin, y); y += (pLines.length * 12) + 10;
+
+  doc.setDrawColor(200); doc.line(margin, y, pageW-margin, y); y += 18;
+
+  y = pdfSection(doc, "Contact Information", margin, y);
+  y = pdfKV(doc, "Full name", record.contact.fullName, margin, y);
+  y = pdfKV(doc, "Email", record.contact.email, margin, y);
+  y = pdfKV(doc, "Contact number", record.contact.phone, margin, y);
+  y += 10;
+
+  y = pdfSection(doc, "Applicants / Travelers", margin, y);
+  record.travelers.forEach((t, idx)=>{
+    y = pdfSub(doc, `Traveler ${idx+1}`, margin, y);
+    y = pdfKV(doc, "Visa type", t.visaType, margin, y);
+    y = pdfKV(doc, "Gender", t.gender, margin, y);
+    y = pdfKV(doc, "Date of birth", t.dob, margin, y);
+    y = pdfKV(doc, "Nationality", t.nationality, margin, y);
+    y = pdfKV(doc, "Last UAE travel", t.neverVisitedUAE ? "Never visited" : (t.lastUaeTravel || "-"), margin, y);
+    y = pdfKV(doc, "Expected UAE travel", t.expectedUaeTravel || "-", margin, y);
+    y += 8;
+    if(y > 760){ doc.addPage(); y = 52; }
+  });
+
+  y = pdfSection(doc, "Additional Information", margin, y);
+  y = pdfKV(doc, "Comments", record.additional.comments || "-", margin, y);
+  y = pdfKV(doc, "Audio attached", record.additional.audioAttached ? "Yes" : "No", margin, y);
+
+  const bytes = doc.output("arraybuffer");
+  const blob = new Blob([bytes], { type:"application/pdf" });
+  return URL.createObjectURL(blob);
+}
+
+function pdfSection(doc, title, margin, y){
+  doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(30);
+  doc.text(title, margin, y); y += 12;
+  doc.setDrawColor(220);
+  doc.line(margin, y, doc.internal.pageSize.getWidth()-margin, y);
+  y += 14;
+  return y;
+}
+function pdfSub(doc, title, margin, y){
+  doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(40);
+  doc.text(title, margin, y); y += 14;
+  return y;
+}
+function pdfKV(doc, key, value, margin, y){
+  const pageW = doc.internal.pageSize.getWidth();
+  const keyW = 160;
+  const maxW = pageW - margin*2 - keyW;
+
+  doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(50);
+  doc.text(`${key}:`, margin, y);
+
+  doc.setFont("helvetica","normal"); doc.setTextColor(60);
+  const lines = doc.splitTextToSize(String(value ?? ""), maxW);
+  doc.text(lines, margin + keyW, y);
+
+  y += Math.max(12, lines.length * 12);
+  if(y > 780){ doc.addPage(); y = 52; }
+  return y;
+}
+
+/* New request */
+btnNewRequest.addEventListener("click", ()=>{
+  fullName.value = "";
+  email.value = "";
+  phone.value = "";
+  comments.value = "";
+
+  travelers = [];
+  addTraveler();
+
+  clearAudio();
+  [err1,err2,err3,err4].forEach(e=>setErr(e,""));
+
+  lastSubmittedRecord = null;
+  showStep(1);
+});
+
+/* ============================================================================
+   SOCIAL PROOF DASHBOARD
+============================================================================ */
+function initSocialProofDashboard(){
+  const stats = loadOrSeedStats();
+
+  // Increment homepage visits
+  stats.pageVisits += 1;
+  saveStats(stats);
+
+  const requests = loadRequests();
+  const actualRequests = requests.length;
+  const actualPurchases = requests.filter(r=>r && r.status==="Finalized").length;
+
+  const totalRequests = stats.seedRequests + actualRequests;
+  const purchases = Math.min(totalRequests, stats.seedPurchases + actualPurchases);
+
+  const daysLive = calcDaysLive(LAUNCH_DATE);
+  const topNat = calcTopNationality(requests) || stats.seedTopNationality;
+  const avgProc = calcAvgProcessingDays(requests, stats.seedAvgProcessingDays);
+
+  const rate = totalRequests>0 ? Math.round((purchases/totalRequests)*100) : 0;
+
+  setCounterTarget("spRequests", totalRequests);
+  setCounterTarget("spPurchases", purchases);
+  setCounterTarget("spVisits", stats.pageVisits);
+  setCounterTarget("spDaysLive", daysLive);
+
+  $("#spTopNationality").textContent = topNat;
+  $("#spAvgProcessing").textContent = `${avgProc.toFixed(1)} days`;
+
+  $("#spConversionLine").textContent = `${rate}%`;
+  $("#spFootLine").textContent =
+    `Out of ${formatNumber(totalRequests)} requests submitted, ${formatNumber(purchases)} visas were purchased (${rate}% success rate)`;
+
+  animateCounters();
+}
+
+/* Seed stats (EDIT HERE if you want different realistic starting numbers) */
+function loadOrSeedStats(){
+  try{
+    const raw = localStorage.getItem(STATS_KEY);
+    if(raw){
+      const s = JSON.parse(raw);
+      return {
+        pageVisits:Number(s.pageVisits||0),
+        seedRequests:Number(s.seedRequests||0),
+        seedPurchases:Number(s.seedPurchases||0),
+        seedTopNationality:String(s.seedTopNationality||"India"),
+        seedAvgProcessingDays:Number(s.seedAvgProcessingDays||3.4)
+      };
+    }
+  }catch{}
+
+  const seeded = {
+    pageVisits: 8421,
+    seedRequests: 1247,
+    seedPurchases: 1185,
+    seedTopNationality: "India",
+    seedAvgProcessingDays: 3.4
+  };
+  localStorage.setItem(STATS_KEY, JSON.stringify(seeded));
+  return seeded;
+}
+function saveStats(stats){ localStorage.setItem(STATS_KEY, JSON.stringify(stats)); }
+
+function calcDaysLive(launchDateStr){
+  const launch = new Date(launchDateStr + "T00:00:00");
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = today.getTime() - launch.getTime();
+  return Math.max(1, Math.floor(diff/86400000) + 1);
+}
+function calcTopNationality(requests){
+  const map = new Map();
+  for(const r of (requests||[])){
+    for(const t of (r?.travelers||[])){
+      const nat = (t?.nationality||"").trim();
+      if(!nat) continue;
+      map.set(nat, (map.get(nat)||0)+1);
+    }
+  }
+  let best="", bestCount=0;
+  for(const [k,v] of map.entries()){
+    if(v>bestCount){ best=k; bestCount=v; }
+  }
+  return best;
+}
+function calcAvgProcessingDays(requests, fallback){
+  // Uses finalizedAtISO if your admin sets it later; otherwise fallback seed.
+  const durations=[];
+  for(const r of (requests||[])){
+    if(r?.status!=="Finalized") continue;
+    if(!r?.submittedAtISO || !r?.finalizedAtISO) continue;
+    const start=new Date(r.submittedAtISO).getTime();
+    const end=new Date(r.finalizedAtISO).getTime();
+    if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start) continue;
+    durations.push((end-start)/86400000);
+  }
+  if(!durations.length) return Number(fallback)||3.2;
+  const avg = durations.reduce((a,b)=>a+b,0)/durations.length;
+  return Math.max(1, Math.min(14, avg));
+}
+
+/* Animate counters */
+function setCounterTarget(id, val){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.setAttribute("data-target", String(Math.max(0, Math.floor(val))));
+}
+function animateCounters(){
+  document.querySelectorAll("[data-count][data-target]").forEach(el=>{
+    const target = Number(el.getAttribute("data-target")||"0");
+    const duration = 900;
+    const start = performance.now();
+
+    function tick(now){
+      const t = Math.min(1, (now-start)/duration);
+      const eased = 1 - Math.pow(1-t, 3);
+      el.textContent = formatNumber(Math.floor(target*eased));
+      if(t<1) requestAnimationFrame(tick);
+      else el.textContent = formatNumber(target);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+function formatNumber(n){
+  try{ return Number(n).toLocaleString(); }
+  catch{ return String(n); }
+}
+</script>
+</body>
+</html>
